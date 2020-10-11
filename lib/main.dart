@@ -1,10 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:split_save/Login/LoginProcess.dart';
 import 'package:flutter/services.dart';
 import 'package:split_save/StartAppPages/StartPages.dart';
 import './services/service_locator.dart';
 
-void main() {
+void main() async {
+  await Firebase.initializeApp();
   setupLocator();
   runApp(MyApp());
 }
