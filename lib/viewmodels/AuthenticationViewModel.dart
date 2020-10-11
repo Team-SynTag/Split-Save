@@ -10,7 +10,7 @@ enum AuthType { LOGIN, SIGNUP }
 class AuthenticationViewModel extends BaseModel {
   final AuthenticationService _authenticationService = locator<AuthenticationService>();
 
-  Future signUp({@required username, @required String email, @required String password, @required AuthType aType}) async {
+  Future<AuthenticationResult> authenticate({String username, @required String email, @required String password, @required AuthType aType}) async {
     if (aType == AuthType.SIGNUP) {
       setBusy(true);
       var signUpResult = await _authenticationService.signUpWithEmail(username: username, email: email, password: password);

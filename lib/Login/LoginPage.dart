@@ -1,9 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:split_save/Widgets/UnderlineContainer.dart';
 import 'package:split_save/Home/HomePage.dart';
 import 'package:split_save/Login/ForgotPassword.dart';
 import 'package:split_save/Login/TextEnteringModule.dart';
+import 'package:split_save/viewmodels/AuthenticationViewModel.dart';
+import 'package:stacked/stacked.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -11,9 +14,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  TextEditingController emailCont = TextEditingController();
+  TextEditingController passwordCont = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ViewModelBuilder<AuthenticationViewModel>.reactive(
+      viewModelBuilder: () => AuthenticationViewModel(),
+      builder: (context, authenticationViewModel, child) => Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Container(
@@ -75,11 +83,11 @@ class _LoginPageState extends State<LoginPage> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
-                                  TextWritting('assets/images/mail.png', 'Email', false),
+                                  TextWritting('assets/images/mail.png', 'Email', false, emailCont),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height * .03,
                                   ),
-                                  TextWritting('assets/images/passwordicon.png', 'Password', true),
+                                  TextWritting('assets/images/passwordicon.png', 'Password', true, passwordCont),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height * .01,
                                   ),
@@ -103,10 +111,28 @@ class _LoginPageState extends State<LoginPage> {
                             height: MediaQuery.of(context).size.height * .075,
                             decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(50.0)), color: Color(0xFF70D93F)),
                             child: FlatButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                                  return HomePage();
-                                }));
+                              onPressed: () async {
+                                var res = await authenticationViewModel.authenticate(
+                                  email: emailCont.text,
+                                  password: passwordCont.text,
+                                  aType: AuthType.LOGIN,
+                                );
+
+                                if (res == AuthenticationResult.SUCCESS) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return HomePage();
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  Fluttertoast.showToast(
+                                    msg: 'Login failed!',
+                                    textColor: Colors.white,
+                                    backgroundColor: Colors.red[900],
+                                  );
+                                }
                               },
                               child: Align(
                                 alignment: Alignment.center,
@@ -125,6 +151,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
